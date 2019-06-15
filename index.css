@@ -1,13 +1,14 @@
+
 body {
-	background-color: #B2E9FD;
+	background-color: #343d46;
 }
 
 .header h2 {
-	color: #DC4247;
+	color: #c0c5ce;
 }
 
 .header p {
-	color: #50524F;
+	color: #65737e;
 }
 
 .results {
@@ -16,15 +17,12 @@ body {
 }
 
 .movies-container {
-	display: flex;
-	flex-wrap: wrap;
-	padding: 0;
-	margin: 0;
-	justify-content: center;
+	display: grid;
+	margin: auto;
+	grid-template-rows: auto;
 }
 .movie {
 	display: flex;
-	background-color: lightgrey;
 	align-content: flex-start;
 	margin: 10px 20px;
 	padding: 0;
@@ -34,18 +32,38 @@ body {
 	display: flex;
 	flex-direction: column;
 	flex-basis: 50%;
+	align-items: stretch;
+	justify-content: space-around;
+	background-color: #c0c5ce;
+	opacity: 0;
+}
+
+.movieTitle {
+	justify-self: flex-start;
+	text-align: center;
 }
 
 .movieImage {
 	flex-basis: 50%;
 	width: 50%;
-	margin-right: 5px
+	margin-right: 5px;
+	border-radius: 25px;
 }
 
 .addButton {
 	align-self: flex-end;
-	position: absolute;
-	bottom: 0;
-	right: 0;
+
 }
+
+@media screen and (min-width: 1000px){
+ .movies-container {
+	grid-template-columns: 1fr 1fr 1fr; 
+ }
+}
+
+@media screen and (max-width: 1000px) and (min-width: 700px) {
+	.movies-container {
+	   grid-template-columns: 1fr 1fr; 
+	}
+   }
 
