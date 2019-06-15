@@ -23,36 +23,39 @@ body {
 }
 .movie {
 	display: flex;
-	align-content: flex-start;
+	flex-direction: column;
 	margin: 10px 20px;
 	padding: 0;
 }
 
 .movieInfo {
-	display: flex;
-	flex-direction: column;
-	flex-basis: 50%;
-	align-items: stretch;
-	justify-content: space-around;
-	background-color: #c0c5ce;
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: 1fr 1fr 1fr;
+	width: 100%;
+	height: 100%;
+	background-color: #a7adba;
 	opacity: 0;
+	font-size: 12px;
 }
 
 .movieTitle {
-	justify-self: flex-start;
 	text-align: center;
+	font-size: 14px;
+}
+.movieYear {
+	justify-self: center;
 }
 
 .movieImage {
-	flex-basis: 50%;
-	width: 50%;
-	margin-right: 5px;
+	width: 100%;
+	height: 100%;
 	border-radius: 25px;
 }
 
 .addButton {
-	align-self: flex-end;
-
+	align-self: end;
+	justify-self: end;
 }
 
 @media screen and (min-width: 1000px){
