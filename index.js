@@ -3,7 +3,7 @@ document.addEventListener(`DOMContentLoaded`, function() {
         movieHTML= movieArray.map(currentMovie => {
             return `<div class="movie rounded">
             <img src="${currentMovie.Poster}" onClick="movieInfo(${currentMovie.imdbID})" alt="${currentMovie.Title} poster" class="movieImage">
-            <div class="rounded d-none movieInfo" id="${currentMovie.imdbID}">
+            <div class="rounded movieInfo" id="${currentMovie.imdbID}">
             <h5 class="movieTitle">${currentMovie.Title}</h5>
             <br>
             <br>
@@ -22,6 +22,6 @@ document.addEventListener(`DOMContentLoaded`, function() {
 
 
  function movieInfo (movieID) {
-    const infoPanel = document.getElementById(movieID);
-    movieID.classList.toggle('active')
+    movieID.style.opacity == 0 ? movieID.style.opacity = 1 : movieID.style.opacity = 0;
+    movieID.style.transition = "opacity 1s"
  }

@@ -35,25 +35,8 @@ body {
 	align-items: stretch;
 	justify-content: space-around;
 	background-color: #c0c5ce;
-	position: absolute;
-	visibility: hidden;
+	opacity: 0;
 }
-.movieInfo.active{
-	position: static;
-	visibility: visible;
-	animation: fade 1s;
-}
-
-@keyframes fade {
-    0% {
-        opacity: 0;
-    }
-
-    100% {
-        opacity: 1;
-    }
-}
-
 
 .movieTitle {
 	justify-self: flex-start;
