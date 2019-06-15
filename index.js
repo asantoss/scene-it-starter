@@ -1,23 +1,28 @@
 const myStorage= window.localStorage;
 const watchlist = myStorage.getItem('watchlist') ? JSON.parse(localStorage.getItem('watchlist')) : {};
 let oldhtml;
+let movieHTML;
 
 document.addEventListener(`DOMContentLoaded`, () => {     
-    document.getElementById('search-form').addEventListener('submit', e => {
-        e.preventDefault()
         document.getElementById('movieContainer').innerHTML = renderMovies(movieData);
-    })
     
     oldhtml = document.getElementById('movieContainer').innerHTML;
+
+    document.getElementById('searchText').addEventListener('input', function searchMovie (e) {
+        let text = e.target.value.toLowerCase()
+        var search = movieData.filter(e =>{
+            let findInTitle = e.Title.toLowerCase().indexOf(text) > -1
+            let findInYear = e.Year.toLowerCase().indexOf(text) > -1
+            return findInTitle || findInYear;
+        })
+        return document.getElementById('movieContainer').innerHTML = renderMovies(search);
+     });
 });
-
-
-
 
 function renderMovies (movieArray) {
     movieHTML= movieArray.map(currentMovie => {
         return `<div class="movie rounded">
-        <img src="${currentMovie.Poster}" onClick="movieInfo(${currentMovie.imdbID}, this)" alt="${currentMovie.Title} poster" class="movieImage" id="${currentMovie.imdbID}poster">
+        <img src="${currentMovie.Poster}" onClick="movieInfo(${currentMovie.imdbID}, this)" alt="${currentMovie.Title} poster" class="movieImage">
         <div class="rounded movieInfo" id="${currentMovie.imdbID}">
         <h5 class="movieTitle">${currentMovie.Title}</h5>
         <p class="movieYear">${currentMovie.Year}</p>
@@ -55,8 +60,8 @@ function removeFav (id) {
 
 
 function movieInfo (movieID, element) {
-    element.style.height === "100%" ? element.style.height = '50%' : element.style.height = '100%'
-     movieID.style.opacity == 0 ? movieID.style.opacity = 1 : movieID.style.opacity = 0;
-     movieID.style.transition = "opacity 1s";
-     element.style.transition = "height 1s"
+    movieID.style.opacity == 0 ? movieID.style.opacity = 1 : movieID.style.opacity = 0;
+    movieID.style.transition = "opacity 1s";
+    element.style.width === '50%' ? element.style.width = "100%" : element.style.width = "50%"
+    element.style.transition = "width 1s";
     }
