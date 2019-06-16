@@ -1,25 +1,61 @@
 let myStorage = localStorage.getItem('watchlist');
 let container;
+let dropdown;
 let buttonHTML;
+let movieData;
+let moviePages;
+let encondedSearchString;
 let watchlist = myStorage === null ? [] : JSON.parse(myStorage);
 
 
 document.addEventListener(`DOMContentLoaded`, () => {
     container = document.getElementById('movieContainer')
-    container.innerHTML = renderMovies(movieData);
-    document.getElementById('searchText').addEventListener('input', function searchMovie(e) {
-        let text = e.target.value.toLowerCase()
-        var search = movieData.filter(e => {
-            let findInTitle = e.Title.toLowerCase().indexOf(text) > -1
-            let findInYear = e.Year.toLowerCase().indexOf(text) > -1
-            return findInTitle || findInYear;
-        })
-        return container = renderMovies(search);
+    dropdown = document.getElementById('sorter');
+    dropdown.addEventListener('change', () => {
+        sort(dropdown.value, movieData)
+        container.innerHTML = renderMovies(movieData)
+    })
+    let searchForm = document.getElementById('search-form')
+    searchForm.addEventListener('submit', function searchMovie(e) {
+        e.preventDefault();
+        let pages = document.getElementById('pages');
+        pages.innerHTML = ''
+        let searchText = document.getElementById('searchText').value.toLowerCase();
+        encondedSearchString = encodeURIComponent(searchText);
+        axios.get(`http://www.omdbapi.com/?apikey=3430a78&s=${encondedSearchString}`)
+            .then(result => {
+                moviePages = Math.ceil(result.data.totalResults / 10);
+                for (let i = 1; i < 4; i++) {
+                    let page = document.createElement('button');
+                    page.setAttribute('onClick', `fetchPage(${i}, this)`);
+                    page.setAttribute('id', `${i}page`);
+                    page.classList.add('text-center')
+                    if (i == 1) { page.classList.add('active') }
+                    page.innerHTML = i;
+                    pages.appendChild(page)
+                }
+                return movieData = result.data.Search
+            })
+            .then(() => {
+                if (movieData === undefined) {
+                    return container.innerHTML = `<h2 style="color: #fefefe;">No movie found!</h2>`
+                } else {
+                    return container.innerHTML = renderMovies(movieData)
+                }
+            });
+        return
     });
 });
 
 function renderMovies(movieArray) {
+    let ratings;
+    let releasedDate;
+    let genre;
     movieHTML = movieArray.map(currentMovie => {
+        let poster = currentMovie.Poster;
+        if (currentMovie.Poster == "N/A") {
+            poster = "./assets/no_image.png"
+        }
         buttonHTML = `<div class="addButton">
         <button onClick="addFav('${currentMovie.imdbID}')" class="btn btn-success" id="${currentMovie.imdbID}button">Add</button>
         </div>`
@@ -31,17 +67,57 @@ function renderMovies(movieArray) {
                 </div>`
             }
         }
-
+        // <p class="movieYear">Released: ${rating.join('')}</p>
+        // <p class="movieYear">Released: ${genre}</p>
+        // <p class="movieYear">Released: ${releasedDate}</p>
         return `<div class="movie rounded">
-        <img src="${currentMovie.Poster}" onClick="movieInfo(${currentMovie.imdbID}, this)" alt="${currentMovie.Title} poster" class="movieImage">
+        <img src="${poster}" onClick="movieInfo(${currentMovie.imdbID}, this)" alt="${currentMovie.Title} poster" class="movieImage">
         <div class="rounded movieInfo" id="${currentMovie.imdbID}">
         <h5 class="movieTitle">${currentMovie.Title}</h5>
-        <p class="movieYear">${currentMovie.Year}</p>
+
         </div>
         ${buttonHTML}
         </div>`
     })
     return movieHTML.join('')
+}
+
+function fetchPage(number, element) {
+    axios.get(`http://www.omdbapi.com/?apikey=3430a78&s=${encondedSearchString}&page=${number}`)
+        .then(result => {
+            return movieData = result.data.Search
+        })
+        .then(() => {
+            if (movieData === undefined) {
+                return container.innerHTML = `<h2 style="color: #fefefe;">No movie found!</h2>`
+            } else {
+                return container.innerHTML = renderMovies(movieData)
+            }
+        });
+}
+
+function sort(value, sortArray) {
+    if (value === "newest") {
+        return sortArray.sort((a, b) => {
+            return b.Year - a.Year
+        })
+    } else if (value === "oldest") {
+        return sortArray.sort((a, b) => {
+            return a.Year - b.Year
+        })
+    } else if (value === "name") {
+        sortArray.sort((a, b) => {
+            if (a.Title < b.Title) {
+                return -1
+            };
+        })
+    } else if (value === "nameDes") {
+        sortArray.sort((a, b) => {
+            if (a.Title > b.Title) {
+                return -1
+            };
+        })
+    }
 }
 
 
@@ -84,6 +160,15 @@ function removeFav(id) {
 function movieInfo(movieID, element) {
     movieID.style.opacity == 0 ? movieID.style.opacity = 1 : movieID.style.opacity = 0;
     movieID.style.transition = "opacity 1s";
+    debugger;
+    axios.get(`http://www.omdbapi.com/?apikey=3430a78&t=${encodeURIComponent(currentMovie.Title)}&plot=full`)
+        .then(result => {
+            ratings = result.data.ratings.map(e => {
+                return `<p>${e.Source}: ${e.value}</p>`
+            });
+            releasedDate = result.data.Released;
+            genre = result.data.Genre;
+        })
 
     // element.style.width === '50%' ? element.style.width = "100%" : element.style.width = "50%"
     // element.style.transition = "width 1s";
