@@ -48,9 +48,6 @@ document.addEventListener(`DOMContentLoaded`, () => {
 });
 
 function renderMovies(movieArray) {
-    let ratings;
-    let releasedDate;
-    let genre;
     movieHTML = movieArray.map(currentMovie => {
         let poster = currentMovie.Poster;
         if (currentMovie.Poster == "N/A") {
@@ -71,7 +68,7 @@ function renderMovies(movieArray) {
         // <p class="movieYear">Released: ${genre}</p>
         // <p class="movieYear">Released: ${releasedDate}</p>
         return `<div class="movie rounded">
-        <img src="${poster}" onClick="movieInfo(${currentMovie.imdbID}, this)" alt="${currentMovie.Title} poster" class="movieImage">
+        <img src="${poster}" onClick="movieInfo(${currentMovie.imdbID},'${currentMovie.Title}')" alt="${currentMovie.Title} poster" class="movieImage">
         <div class="rounded movieInfo" id="${currentMovie.imdbID}">
         <h5 class="movieTitle">${currentMovie.Title}</h5>
 
@@ -157,19 +154,25 @@ function removeFav(id) {
 
 
 
-function movieInfo(movieID, element) {
-    movieID.style.opacity == 0 ? movieID.style.opacity = 1 : movieID.style.opacity = 0;
-    movieID.style.transition = "opacity 1s";
-    debugger;
-    axios.get(`http://www.omdbapi.com/?apikey=3430a78&t=${encodeURIComponent(currentMovie.Title)}&plot=full`)
+function movieInfo(movieID, title) {
+    let movieInfoHTML = []
+    axios.get(`http://www.omdbapi.com/?apikey=3430a78&t=${encodeURIComponent(title)}&plot=full`)
         .then(result => {
-            ratings = result.data.ratings.map(e => {
-                return `<p>${e.Source}: ${e.value}</p>`
+            ratings = result.data.Ratings.map(e => {
+                movieInfoHTML.push(`<p>${e.Source}: ${e.Value}</p>`);
             });
             releasedDate = result.data.Released;
             genre = result.data.Genre;
         })
+        .then(() => {
+            movieID.style.opacity == 0 ? movieID.style.opacity = 1 : movieID.style.opacity = 0;
+            movieID.style.transition = "opacity 1s";
+            movieID.innerHTML = `<h5 class="movieTitle">${title}</h5> 
+                                <p>Released: ${releasedDate}</p>
+                                <p>${genre}
+                                ${movieInfoHTML.join('')}
+                                </p>`
+        })
 
-    // element.style.width === '50%' ? element.style.width = "100%" : element.style.width = "50%"
-    // element.style.transition = "width 1s";
+    return
 }

@@ -32,12 +32,11 @@ body {
 }
 
 .movieInfo {
-    flex-basis: 50%;
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: auto;
     grid-row-gap: 1em;
-    width: 50%;
+    width: 100%;
     height: 400px;
     color: #a7adba;
     opacity: 0;
