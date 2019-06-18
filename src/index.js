@@ -68,6 +68,7 @@ function renderMovies(movieArray) {
         <img src="${poster}" onClick="movieInfo('${currentMovie.imdbID}Info', this)" alt="${currentMovie.Title} poster" class="movieImage">
         <div class="rounded movieInfo" id="${currentMovie.imdbID}Info">
         <h5 class="movieTitle">${currentMovie.Title}</h5>
+        <h6 class="movieTitle">${currentMovie.Year}</h6>
         <div class="text-center" id="${currentMovie.imdbID}/G">
         <button class="btn-outline-secondary" onClick="moreInfo('${currentMovie.Title}','${currentMovie.imdbID}/G')" >Information</button>
         </div>

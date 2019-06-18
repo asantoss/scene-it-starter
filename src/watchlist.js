@@ -42,10 +42,13 @@ function renderMovies(movieArray) {
         </div>
         <div class="rounded movieInfo" id="${currentMovie.imdbID}">
         <h5 class="movieTitle">${currentMovie.Title}</h5>
-        <p class="movieYear">${currentMovie.Year}</p>
+        <h6 class="movieTitle">${currentMovie.Year}</h6>
+        <div class="text-center" id="${currentMovie.imdbID}/G">
+        <button class="btn-outline-secondary" onClick="moreInfo('${currentMovie.Title}','${currentMovie.imdbID}/G')" >Information</button>
+        </div>
+        </div>
         <div class="addButton">
         <button onClick="removeFav('${currentMovie.imdbID}')" class="btn btn-danger">Remove</button>
-        </div>
         </div>
         </div>`
     })
@@ -69,4 +72,20 @@ function movieInfo(movieID, element) {
     movieID.style.transition = "opacity 1s";
     // element.style.width === '50%' ? element.style.width = "100%" : element.style.width = "50%"
     // element.style.transition = "width 1s";
+}
+function moreInfo(title, element) {
+    let movieHTML = []
+    let targetDiv = document.getElementById(`${element}`)
+    axios.get(`http://www.omdbapi.com/?apikey=3430a78&t=${encodeURIComponent(title)}&plot=full`)
+        .then(result => {
+            ratings = result.data.Ratings.map(e => {
+                return movieHTML.push(`<p>${e.Source}: ${e.Value}</p>`)
+            });
+            releasedDate = result.data.Released;
+            genre = result.data.Genre;
+        })
+        .then(() => {
+            targetDiv.innerHTML = movieHTML.join('')
+        })
+
 }
