@@ -64,17 +64,9 @@ function renderMovies(movieArray) {
                 </div>`
             }
         }
-        // <p class="movieYear">Released: ${rating.join('')}</p>
-        // <p class="movieYear">Released: ${genre}</p>
-        // <p class="movieYear">Released: ${releasedDate}</p>
-<<<<<<< HEAD
-        return `<div class="movie rounded">
-        <img src="${poster}" onClick="movieInfo(${currentMovie.imdbID},'${currentMovie.Title}')" alt="${currentMovie.Title} poster" class="movieImage">
-=======
         return `<div class="movie rounded mx-2">
-        <img src="${poster}" onClick="movieInfo(${currentMovie.imdbID}, this)" alt="${currentMovie.Title} poster" class="movieImage">
->>>>>>> 901e1252ab55ea82a593321c16f4f257491337b9
-        <div class="rounded movieInfo" id="${currentMovie.imdbID}">
+        <img src="${poster}" onClick="movieInfo('${currentMovie.imdbID}Info', this)" alt="${currentMovie.Title} poster" class="movieImage">
+        <div class="rounded movieInfo" id="${currentMovie.imdbID}Info">
         <h5 class="movieTitle">${currentMovie.Title}</h5>
         <div class="text-center" id="${currentMovie.imdbID}/G">
         <button class="btn-outline-secondary" onClick="moreInfo('${currentMovie.Title}','${currentMovie.imdbID}/G')" >Information</button>
@@ -102,11 +94,11 @@ function fetchPage(number, element) {
 
 function sort(value, sortArray) {
     if (value === "newest") {
-        return sortArray.sort((a, b) => {
+        sortArray.sort((a, b) => {
             return b.Year - a.Year
         })
     } else if (value === "oldest") {
-        return sortArray.sort((a, b) => {
+        sortArray.sort((a, b) => {
             return a.Year - b.Year
         })
     } else if (value === "name") {
@@ -139,57 +131,35 @@ function addFav(id, element) {
     })
     for (let i = 0; i < watchlist.length; i++) {
         let element = watchlist[i]
+        movieTitle = element.Title;
         if (element.imdbID === id) {
             return
         }
     }
-    console.log(element)
     watchlist.push(currentMovie)
     saveLocalStorage('watchlist', watchlist);
 
-    return buttonHTML.innerHTML = `<button onclick="removeFav(${id},'${id}Buttons')" class="btn btn-danger" id="tt1345836button">Remove</button>`
+    return buttonHTML.innerHTML = `<button onclick="removeFav('${id}','${id}Buttons')" class="btn btn-danger" id="tt1345836button">Remove</button>`
 }
 
 function removeFav(id, element) {
     let buttonHTML = document.getElementById(element)
     watchlist.forEach(e => {
-        if (e.imdbID === id) {
+        if (e.imdbID === id || e.Title === id) {
             let index = watchlist.indexOf(e)
-            watchlist.splice(index, 1)
+            watchlist.splice(index, 1);
         }
     })
     saveLocalStorage('watchlist', watchlist);
-    return buttonHTML.innerHTML = `<button onclick="addFav(${id},'${id}Buttons')" class="btn btn-success" id="tt1345836button">Add</button>`
+    return buttonHTML.innerHTML = `<button onclick="addFav('${id}','${id}Buttons')" class="btn btn-success" id="tt1345836button">Add</button>`
 }
 
 
 
-<<<<<<< HEAD
-function movieInfo(movieID, title) {
-    let movieInfoHTML = []
-    axios.get(`http://www.omdbapi.com/?apikey=3430a78&t=${encodeURIComponent(title)}&plot=full`)
-        .then(result => {
-            ratings = result.data.Ratings.map(e => {
-                movieInfoHTML.push(`<p>${e.Source}: ${e.Value}</p>`);
-            });
-            releasedDate = result.data.Released;
-            genre = result.data.Genre;
-        })
-        .then(() => {
-            movieID.style.opacity == 0 ? movieID.style.opacity = 1 : movieID.style.opacity = 0;
-            movieID.style.transition = "opacity 1s";
-            movieID.innerHTML = `<h5 class="movieTitle">${title}</h5> 
-                                <p>Released: ${releasedDate}</p>
-                                <p>${genre}
-                                ${movieInfoHTML.join('')}
-                                </p>`
-        })
-
-    return
-=======
-function movieInfo(movieID, element) {
-    movieID.style.opacity == 0 ? movieID.style.opacity = 1 : movieID.style.opacity = 0;
-    movieID.style.transition = "opacity 1s";
+function movieInfo(movieID) {
+    element = document.getElementById(`${movieID}`)
+    element.style.opacity == 0 ? element.style.opacity = 1 : element.style.opacity = 0;
+    element.style.transition = "opacity 1s";
 
 
     // element.style.width === '50%' ? element.style.width = "100%" : element.style.width = "50%"
@@ -202,21 +172,20 @@ function moreInfo(title, element) {
     let movieHTML = []
     let targetDiv = document.getElementById(`${element}`)
     axios.get(`http://www.omdbapi.com/?apikey=3430a78&t=${encodeURIComponent(title)}&plot=full`)
-.then(result => {
-    ratings = result.data.Ratings.map(e => {
-        return movieHTML.push(`<p>${e.Source}: ${e.Value}</p>`)
-    });
-    releasedDate = result.data.Released;
-    genre = result.data.Genre;
-})
-.then(()=>{
-    targetDiv.innerHTML = movieHTML.join('')
-})
+        .then(result => {
+            ratings = result.data.Ratings.map(e => {
+                return movieHTML.push(`<p>${e.Source}: ${e.Value}</p>`)
+            });
+            releasedDate = result.data.Released;
+            genre = result.data.Genre;
+        })
+        .then(() => {
+            targetDiv.innerHTML = movieHTML.join('')
+        })
 
 }
 
 function lessInfo(element) {
     movieHTML = document.getElementById(`${element}`)
     return movieHTML.innerHTML = '<button class="btn movieTitle" onclick="moreInfo()">More info</button>'
->>>>>>> 901e1252ab55ea82a593321c16f4f257491337b9
 }
