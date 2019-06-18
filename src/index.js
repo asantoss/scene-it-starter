@@ -56,25 +56,27 @@ function renderMovies(movieArray) {
         if (currentMovie.Poster == "N/A") {
             poster = "./assets/no_image.png"
         }
-        buttonHTML = `<div class="addButton">
-        <button onClick="addFav('${currentMovie.imdbID}')" class="btn btn-success" id="${currentMovie.imdbID}button">Add</button>
+        buttonHTML = `<div class="addButton" id="${currentMovie.imdbID}Buttons">
+        <button onClick="addFav('${currentMovie.imdbID}', '${currentMovie.imdbID}Buttons')" class="btn btn-success" id="${currentMovie.imdbID}button">Add</button>
         </div>`
         for (let i = 0; i < watchlist.length; i++) {
             let element = watchlist[i];
             if (element.imdbID === currentMovie.imdbID) {
-                buttonHTML = `<div class="addButton">
-                <button onClick="removeFav('${currentMovie.imdbID}')" class="btn btn-danger">Remove</button>
+                buttonHTML = `<div class="addButton" id="${currentMovie.imdbID}Buttons">
+                <button onClick="removeFav('${currentMovie.imdbID}', '${currentMovie.imdbID}Buttons')" class="btn btn-danger">Remove</button>
                 </div>`
             }
         }
         // <p class="movieYear">Released: ${rating.join('')}</p>
         // <p class="movieYear">Released: ${genre}</p>
         // <p class="movieYear">Released: ${releasedDate}</p>
-        return `<div class="movie rounded">
+        return `<div class="movie rounded mx-2">
         <img src="${poster}" onClick="movieInfo(${currentMovie.imdbID}, this)" alt="${currentMovie.Title} poster" class="movieImage">
         <div class="rounded movieInfo" id="${currentMovie.imdbID}">
         <h5 class="movieTitle">${currentMovie.Title}</h5>
-
+        <div class="text-center" id="${currentMovie.imdbID}/G">
+        <button class="btn-outline-secondary" onClick="moreInfo('${currentMovie.Title}','${currentMovie.imdbID}/G')" >Information</button>
+        </div>
         </div>
         ${buttonHTML}
         </div>`
@@ -128,7 +130,8 @@ function saveLocalStorage(key, value) {
 }
 
 
-function addFav(id) {
+function addFav(id, element) {
+    let buttonHTML = document.getElementById(element)
     let currentMovie = movieData.find(movie => {
         return movie.imdbID === id;
     })
@@ -138,12 +141,15 @@ function addFav(id) {
             return
         }
     }
+    console.log(element)
     watchlist.push(currentMovie)
     saveLocalStorage('watchlist', watchlist);
-    return container.innerHTML = renderMovies(movieData)
+
+    return buttonHTML.innerHTML = `<button onclick="removeFav(${id},'${id}Buttons')" class="btn btn-danger" id="tt1345836button">Remove</button>`
 }
 
-function removeFav(id) {
+function removeFav(id, element) {
+    let buttonHTML = document.getElementById(element)
     watchlist.forEach(e => {
         if (e.imdbID === id) {
             let index = watchlist.indexOf(e)
@@ -151,8 +157,7 @@ function removeFav(id) {
         }
     })
     saveLocalStorage('watchlist', watchlist);
-
-    return container.innerHTML = renderMovies(movieData)
+    return buttonHTML.innerHTML = `<button onclick="addFav(${id},'${id}Buttons')" class="btn btn-success" id="tt1345836button">Add</button>`
 }
 
 
@@ -160,16 +165,32 @@ function removeFav(id) {
 function movieInfo(movieID, element) {
     movieID.style.opacity == 0 ? movieID.style.opacity = 1 : movieID.style.opacity = 0;
     movieID.style.transition = "opacity 1s";
-    debugger;
-    axios.get(`http://www.omdbapi.com/?apikey=3430a78&t=${encodeURIComponent(currentMovie.Title)}&plot=full`)
-        .then(result => {
-            ratings = result.data.ratings.map(e => {
-                return `<p>${e.Source}: ${e.value}</p>`
-            });
-            releasedDate = result.data.Released;
-            genre = result.data.Genre;
-        })
+
 
     // element.style.width === '50%' ? element.style.width = "100%" : element.style.width = "50%"
     // element.style.transition = "width 1s";
+}
+
+
+
+function moreInfo(title, element) {
+    let movieHTML = []
+    let targetDiv = document.getElementById(`${element}`)
+    axios.get(`http://www.omdbapi.com/?apikey=3430a78&t=${encodeURIComponent(title)}&plot=full`)
+.then(result => {
+    ratings = result.data.Ratings.map(e => {
+        return movieHTML.push(`<p>${e.Source}: ${e.Value}</p>`)
+    });
+    releasedDate = result.data.Released;
+    genre = result.data.Genre;
+})
+.then(()=>{
+    targetDiv.innerHTML = movieHTML.join('')
+})
+
+}
+
+function lessInfo(element) {
+    movieHTML = document.getElementById(`${element}`)
+    return movieHTML.innerHTML = '<button class="btn movieTitle" onclick="moreInfo()">More info</button>'
 }
