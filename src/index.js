@@ -132,12 +132,11 @@ function addFav(id, element) {
     })
     for (let i = 0; i < watchlist.length; i++) {
         let element = watchlist[i]
-        movieTitle = element.Title;
         if (element.imdbID === id) {
             return
         }
     }
-    watchlist.push(currentMovie)
+    watchlist.push(currentMovie);
     saveLocalStorage('watchlist', watchlist);
 
     return buttonHTML.innerHTML = `<button onclick="removeFav('${id}','${id}Buttons')" class="btn btn-danger" id="tt1345836button">Remove</button>`
