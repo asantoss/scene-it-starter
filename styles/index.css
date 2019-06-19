@@ -59,6 +59,10 @@ body {
     font-size: 14px;
 }
 
+.moreInfo {
+    font-size: 10px;
+}
+
 .movieTitle {
     text-align: center;
     font-size: 18px;

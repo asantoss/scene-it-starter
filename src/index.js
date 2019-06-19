@@ -69,7 +69,7 @@ function renderMovies(movieArray) {
         <div class="rounded movieInfo" id="${currentMovie.imdbID}Info">
         <h5 class="movieTitle">${currentMovie.Title}</h5>
         <h6 class="movieTitle">${currentMovie.Year}</h6>
-        <div class="text-center" id="${currentMovie.imdbID}/G">
+        <div class="text-center moreInfo" id="${currentMovie.imdbID}/G">
         <button class="btn-outline-secondary" onClick="moreInfo('${currentMovie.Title}','${currentMovie.imdbID}/G')" >Information</button>
         </div>
         </div>
@@ -173,11 +173,14 @@ function moreInfo(title, element) {
     let targetDiv = document.getElementById(`${element}`)
     axios.get(`http://www.omdbapi.com/?apikey=3430a78&t=${encodeURIComponent(title)}&plot=full`)
         .then(result => {
+            console.log(result)
+            releasedDate = result.data.Released;
+            genre = result.data.Genre;
+            movieHTML.push(`<p>${releasedDate}</p>`)
+            movieHTML.push(`<p>${genre}</p>`)
             ratings = result.data.Ratings.map(e => {
                 return movieHTML.push(`<p>${e.Source}: ${e.Value}</p>`)
             });
-            releasedDate = result.data.Released;
-            genre = result.data.Genre;
         })
         .then(() => {
             targetDiv.innerHTML = movieHTML.join('')
