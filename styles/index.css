@@ -1,5 +1,10 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   background-color: #343d46;
+  margin: 10px 20px;
 }
 
 .header h2 {
@@ -19,6 +24,8 @@ body {
   display: grid;
   grid-template-rows: auto;
   grid-gap: 10px;
+  justify-items: center;
+  margin: 10px 20px 10px;
 }
 
 .movie {
@@ -38,11 +45,14 @@ body {
 }
 
 .navBar_search_form {
-  width: 70%;
+  width: 80%;
+  justify-self: start;
 }
 
-.navBar_watchlist_sort {
-  justify-self: end;
+#pages {
+  margin: auto;
+  width: 200px;
+  justify-content: center;
 }
 
 .navBar_home {
@@ -93,12 +103,26 @@ body {
 
 @media screen and (min-width: 700px) {
   .movies-container {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+  }
+  .navBar {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+  .navBar_watchlist_sort {
+    justify-self: center;
   }
 }
 
 @media screen and (min-width: 1000px) {
   .movies-container {
     grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+  .navBar {
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
+  }
+  .navBar_watchlist_sort {
+    justify-self: end;
   }
 }

@@ -4,6 +4,7 @@ let dropdown;
 let buttonHTML;
 let movieData;
 let moviePages;
+const renderedPages = 5;
 let encondedSearchString;
 let watchlist = myStorage === null ? [] : JSON.parse(myStorage);
 
@@ -17,25 +18,15 @@ document.addEventListener(`DOMContentLoaded`, () => {
   let searchForm = document.getElementById("search-form");
   searchForm.addEventListener("submit", function searchMovie(e) {
     e.preventDefault();
-    let pages = document.getElementById("pages");
-    pages.innerHTML = "";
     let searchText = document.getElementById("searchText").value.toLowerCase();
     encondedSearchString = encodeURIComponent(searchText);
     axios
       .get(`https://www.omdbapi.com/?apikey=3430a78&s=${encondedSearchString}`)
       .then(result => {
+        document.getElementById(
+          "pages"
+        ).innerHTML = `<button onClick="fetchPage(2)">></button>`;
         moviePages = Math.ceil(result.data.totalResults / 10);
-        for (let i = 1; i < 5; i++) {
-          let page = document.createElement("button");
-          page.setAttribute("onClick", `fetchPage(${i}, this)`);
-          page.setAttribute("id", `${i}page`);
-          page.classList.add("text-center");
-          if (i == 1) {
-            page.classList.add("active");
-          }
-          page.innerHTML = i;
-          pages.appendChild(page);
-        }
         return (movieData = result.data.Search);
       })
       .then(() => {
@@ -45,7 +36,6 @@ document.addEventListener(`DOMContentLoaded`, () => {
           return (container.innerHTML = renderMovies(movieData));
         }
       });
-    return;
   });
 });
 
@@ -91,7 +81,10 @@ function renderMovies(movieArray) {
   return movieHTML.join("");
 }
 
-function fetchPage(number, element) {
+function checkPoster(posterURL) {}
+
+function fetchPage(number) {
+  number = Number.parseInt(number);
   axios
     .get(
       `https://www.omdbapi.com/?apikey=3430a78&s=${encondedSearchString}&page=${number}`
@@ -99,12 +92,27 @@ function fetchPage(number, element) {
     .then(result => {
       return (movieData = result.data.Search);
     })
-    .then(() => {
+    .then(movieData => {
       if (movieData === undefined) {
-        return (container.innerHTML = `<h2 style="color: #fefefe;">No movie found!</h2>`);
+        return (container.innerHTML = `<h2 style="color: #fefefe;">No movies found!</h2>`);
       } else {
         return (container.innerHTML = renderMovies(movieData));
       }
+    })
+    .then(() => {
+      let tarGet = document.getElementById("pages");
+      if (number === 1) {
+        pagesHTML = [
+          `<button onClick="fetchPage('${number +
+            1}')" class="button">></button>`
+        ];
+        return (tarGet.innerHTML = pagesHTML.join(""));
+      }
+      return (document.getElementById("pages").innerHTML = [
+        `<button onClick="fetchPage('${number -
+          1}')" class="button"><</button>`,
+        `<button onClick="fetchPage('${number + 1}')" class="button">></button>`
+      ].join(""));
     });
 }
 
@@ -221,7 +229,6 @@ function recommend(title) {
           `https://api.themoviedb.org/3/movie/${tmdbId}/recommendations?api_key=231ff08007c871881760666607644536&language=en-US&page=1`
         )
         .then(res => {
-          console.log(res);
           const recommendations = res.data.results.map(movie => {
             return movie.original_title;
           });
