@@ -75,7 +75,7 @@ body {
 
 .movieTitle {
     text-align: center;
-    font-size: 18px;
+    font-size: 22px;
     align-self: center;
 }
 
@@ -106,7 +106,7 @@ body {
         grid-template-columns: 1fr;
     }
     .moreInfo {
-        font-size: 18px;
+        font-size: 20px;
     }
     .navBar {
         grid-template-columns: 1fr;
@@ -120,6 +120,9 @@ body {
 @media screen and (min-width: 1000px) {
     .movies-container {
         grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+    .moreInfo {
+        font-size: 12px;
     }
     .navBar {
         grid-template-columns: 1fr 1fr;

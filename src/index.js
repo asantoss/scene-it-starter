@@ -21,58 +21,57 @@ document.addEventListener(`DOMContentLoaded`, () => {
         let searchText = document.getElementById("searchText").value.toLowerCase();
         encondedSearchString = encodeURIComponent(searchText);
         axios
-            .get(`https://www.omdbapi.com/?apikey=3430a78&s=${encondedSearchString}`)
-            .then(result => {
+            .get(`https://api.themoviedb.org/3/search/movie?api_key=231ff08007c871881760666607644536&query=${encondedSearchString}`)
+            .then(response => {
                 document.getElementById(
                     "pages"
                 ).innerHTML = `<button onClick="fetchPage(2)">></button>`;
-                moviePages = Math.ceil(result.data.totalResults / 10);
-                return (movieData = result.data.Search);
+                moviePages = response.data.total_pages;
+                return movieData = response.data.results;
             })
-            .then(() => {
+            .then(movieData => {
                 if (movieData === undefined) {
-                    return (container.innerHTML = `<h2 style="color: #fefefe;">No movies found!</h2>`);
+                    return container.innerHTML = `<h2 style="color: #fefefe;">No movies found!</h2>`;
                 } else {
-                    return (container.innerHTML = renderMovies(movieData));
+                    return container.innerHTML = renderMovies(movieData);
                 }
             });
     });
 });
 
 function renderMovies(movieArray) {
+    imageURL = 'https://image.tmdb.org/t/p/w200'
     movieHTML = movieArray.map(currentMovie => {
-        let poster = currentMovie.Poster;
-        if (currentMovie.Poster == "N/A") {
+        let poster = currentMovie.poster_path;
+        if (poster == "N/A") {
             poster = "./assets/no_image.png";
         }
-        buttonHTML = `<div class="addButton" id="${currentMovie.imdbID}Buttons">
-        <button onClick="addFav('${currentMovie.imdbID}', '${
-      currentMovie.imdbID
+        buttonHTML = `<div class="addButton" id="${currentMovie.id}Buttons">
+        <button onClick="addFav('${currentMovie.title}', '${
+      currentMovie.id
     }Buttons')" class="btn btn-success" id="${
-      currentMovie.imdbID
+      currentMovie.id
     }button">Add</button>
         </div>`;
         for (let i = 0; i < watchlist.length; i++) {
             let element = watchlist[i];
-            if (element.imdbID === currentMovie.imdbID) {
-                buttonHTML = `<div class="addButton" id="${currentMovie.imdbID}Buttons">
-                <button onClick="removeFav('${currentMovie.imdbID}', '${
-          currentMovie.imdbID
+            if (element.title === currentMovie.title) {
+                buttonHTML = `<div class="addButton" id="${currentMovie.title}Buttons">
+                <button onClick="removeFav('${currentMovie.title}', '${
+          currentMovie.id
         }Buttons')" class="btn btn-danger">Remove</button>
                 </div>`;
             }
         }
         return `<div class="movie rounded mx-2">
-        <img src="${poster}" onClick="movieInfo('${
-      currentMovie.imdbID
-    }Info', this)" alt="${currentMovie.Title} poster" class="movieImage">
-        <div class="rounded movieInfo" id="${currentMovie.imdbID}Info">
-        <h5 class="movieTitle">${currentMovie.Title}</h5>
-        <h6 class="movieTitle">${currentMovie.Year}</h6>
-        <div class="text-center moreInfo" id="${currentMovie.imdbID}/G">
-        <button class="btn-outline-secondary" onClick="moreInfo('${
-          currentMovie.Title
-        }','${currentMovie.imdbID}/G')" >Movie Details</button>
+        <img src="${imageURL}${poster}" onClick="movieInfo('${
+      currentMovie.id
+    }Info', this)" alt="${currentMovie.title} poster" class="movieImage">
+        <div class="rounded movieInfo" id="${currentMovie.id}Info">
+        <h5 class="movieTitle">${currentMovie.title}</h5>
+        <h6 class="movieTitle">${currentMovie.release_date}</h6>
+        <div class="text-center moreInfo" id="${currentMovie.id}/G">
+        <button class="btn-outline-secondary" onClick="moreInfo('${currentMovie.id}','${currentMovie.id}/G')" >Movie Details</button>
         </div>
         </div>
         ${buttonHTML}
@@ -145,21 +144,25 @@ function saveLocalStorage(key, value) {
     return localStorage.setItem(key, value);
 }
 
-function addFav(id, element) {
+function addFav(title, element) {
     let buttonHTML = document.getElementById(element);
+    console.log(movieData)
+    id = element.split('B')[0];
+    debugger;
     let currentMovie = movieData.find(movie => {
-        return movie.imdbID === id;
+        return movie.title === title;
     });
     for (let i = 0; i < watchlist.length; i++) {
         let element = watchlist[i];
-        if (element.imdbID === id) {
+        console.log(element.id)
+        if (element.title === title) {
             return;
         }
     }
     watchlist.push(currentMovie);
     saveLocalStorage("watchlist", watchlist);
 
-    return (buttonHTML.innerHTML = `<button onclick="removeFav('${id}','${id}Buttons')" class="btn btn-danger" id="tt1345836button">Remove</button>`);
+    return (buttonHTML.innerHTML = `<button onclick="removeFav('${title}','${id}Buttons')" class="btn btn-danger" id="tt1345836button">Remove</button>`);
 }
 
 function removeFav(id, element) {
@@ -182,31 +185,32 @@ function movieInfo(movieID) {
     element.style.transition = "opacity 1s";
 }
 
-function moreInfo(title, element) {
-    let movieHTML = [];
+function moreInfo(id, element) {
     let targetDiv = document.getElementById(`${element}`);
     axios
-        .get(
-            `https://www.omdbapi.com/?apikey=3430a78&t=${encodeURIComponent(
-        title
-      )}&plot=full`
-        )
+        .get(`https://api.themoviedb.org/3/movie/${encodeURIComponent(id)}?api_key=231ff08007c871881760666607644536&language=en-US`)
         .then(result => {
-            console.log(result);
-            releasedDate = result.data.Released;
-            genre = result.data.Genre;
-            movieHTML.push(`<p>${releasedDate}</p>`);
+            genre = `${result.data.genres[0].name} & ${result.data.genres[1].name}`;
+            movieHTML = []
             movieHTML.push(`<p>${genre}</p>`);
-            ratings = result.data.Ratings.map(e => {
-                return movieHTML.push(`<p>${e.Source}: ${e.Value}</p>`);
-            });
+            id = result.data.imdb_id;
+            return movieHTML;
+        })
+        .then(movieHTML => {
+            axios.get(`https://www.omdbapi.com/?apikey=3430a78&i=${encodeURIComponent(id)}&plot=full`)
+                .then(result => {
+                    ratings = result.data.Ratings.map(e => {
+                        return movieHTML.push(`<p>${e.Source}: ${e.Value}</p>`);
+                    })
+                });
+            setTimeout(() => { targetDiv.innerHTML = movieHTML.join('') }, 2000)
         })
         // .then(() => {
         //   movieHTML.push(
         //     `<button class="btn-outline-secondary" onClick="recommend('${title}')">Recommendations</button>`
         //   );
-        //   targetDiv.innerHTML = movieHTML.join("");
         // });
+        // targetDiv.innerHTML = movieHTML.join("");
 }
 
 function lessInfo(element) {
