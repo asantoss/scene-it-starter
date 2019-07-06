@@ -1,16 +1,21 @@
-let myStorage = localStorage.getItem("watchlist");
+// let myStorage = localStorage.getItem("watchlist");
 let container;
 let dropdown;
 let buttonHTML;
 let movieData;
 let moviePages;
 const renderedPages = 5;
+let nowPlaying;
 let encondedSearchString;
-let watchlist = myStorage === null ? [] : JSON.parse(myStorage);
+let watchlist;
+
+
+
 
 document.addEventListener(`DOMContentLoaded`, () => {
     container = document.getElementById("movieContainer");
     dropdown = document.getElementById("sorter");
+
     dropdown.addEventListener("change", () => {
         sort(dropdown.value, movieData);
         container.innerHTML = renderMovies(movieData);
@@ -37,36 +42,52 @@ document.addEventListener(`DOMContentLoaded`, () => {
                 }
             });
     });
+    axios.get('https://api.themoviedb.org/3/movie/now_playing?api_key=231ff08007c871881760666607644536&language=en-US&page=1')
+        .then(res => {
+            return nowPlaying = res.data.results.map(e => {
+                return e;
+            })
+        })
+        .then(nowPlaying => {
+            console.log(nowPlaying)
+            return setTimeout(() => { return container.innerHTML = renderMovies(nowPlaying) }, 1500);
+        })
+
 });
 
+
 function renderMovies(movieArray) {
-    imageURL = 'https://image.tmdb.org/t/p/w200'
+    imageURL = 'https://image.tmdb.org/t/p/w200';
     movieHTML = movieArray.map(currentMovie => {
         let poster = currentMovie.poster_path;
+        title = currentMovie.title.replace(/'/g, '');
+        console.log(title)
         if (poster == "N/A") {
             poster = "./assets/no_image.png";
         }
         buttonHTML = `<div class="addButton" id="${currentMovie.id}Buttons">
-        <button onClick="addFav('${currentMovie.title}', '${
-      currentMovie.id
-    }Buttons')" class="btn btn-success" id="${
-      currentMovie.id
-    }button">Add</button>
+        <button onClick="addFav('${title}', '${
+            currentMovie.id
+            }Buttons', '${currentMovie.id}')" class="btn btn-success" id="${
+            currentMovie.id
+            }button">Add</button>
         </div>`;
-        for (let i = 0; i < watchlist.length; i++) {
-            let element = watchlist[i];
-            if (element.title === currentMovie.title) {
-                buttonHTML = `<div class="addButton" id="${currentMovie.title}Buttons">
-                <button onClick="removeFav('${currentMovie.title}', '${
-          currentMovie.id
-        }Buttons')" class="btn btn-danger">Remove</button>
-                </div>`;
+        if (watchlist) {
+            for (let i = 0; i < watchlist.length; i++) {
+                let element = watchlist[i];
+                if (element.title === currentMovie.title) {
+                    buttonHTML = `<div class="addButton" id="${currentMovie.id}Buttons">
+                        <button onClick="removeFav('${title}', '${
+                        currentMovie.id
+                        }Buttons', '${currentMovie.id}')" class="btn btn-danger">Remove</button>
+                        </div>`;
+                }
             }
         }
         return `<div class="movie rounded mx-2">
         <img src="${imageURL}${poster}" onClick="movieInfo('${
-      currentMovie.id
-    }Info', this)" alt="${currentMovie.title} poster" class="movieImage">
+            currentMovie.id
+            }Info', this)" alt="${currentMovie.title} poster" class="movieImage">
         <div class="rounded movieInfo" id="${currentMovie.id}Info">
         <h5 class="movieTitle">${currentMovie.title}</h5>
         <h6 class="movieTitle">${currentMovie.release_date}</h6>
@@ -80,7 +101,7 @@ function renderMovies(movieArray) {
     return movieHTML.join("");
 }
 
-function checkPoster(posterURL) {}
+function checkPoster(posterURL) { }
 
 function fetchPage(number) {
     number = Number.parseInt(number);
@@ -103,13 +124,13 @@ function fetchPage(number) {
             if (number === 1) {
                 pagesHTML = [
                     `<button onClick="fetchPage('${number +
-            1}')" class="button">></button>`
+                    1}')" class="button">></button>`
                 ];
                 return (tarGet.innerHTML = pagesHTML.join(""));
             }
             return (document.getElementById("pages").innerHTML = [
                 `<button onClick="fetchPage('${number -
-          1}')" class="button"><</button>`,
+                1}')" class="button"><</button>`,
                 `<button onClick="fetchPage('${number + 1}')" class="button">></button>`
             ].join(""));
         });
@@ -139,43 +160,11 @@ function sort(value, sortArray) {
     }
 }
 
-function saveLocalStorage(key, value) {
+function saveLocalStorage(key, value, movieData) {
     value = JSON.stringify(value);
     return localStorage.setItem(key, value);
 }
 
-function addFav(title, element) {
-    let buttonHTML = document.getElementById(element);
-    console.log(movieData)
-    id = element.split('B')[0];
-    debugger;
-    let currentMovie = movieData.find(movie => {
-        return movie.title === title;
-    });
-    for (let i = 0; i < watchlist.length; i++) {
-        let element = watchlist[i];
-        console.log(element.id)
-        if (element.title === title) {
-            return;
-        }
-    }
-    watchlist.push(currentMovie);
-    saveLocalStorage("watchlist", watchlist);
-
-    return (buttonHTML.innerHTML = `<button onclick="removeFav('${title}','${id}Buttons')" class="btn btn-danger" id="tt1345836button">Remove</button>`);
-}
-
-function removeFav(id, element) {
-    let buttonHTML = document.getElementById(element);
-    watchlist.forEach(e => {
-        if (e.imdbID === id || e.Title === id) {
-            let index = watchlist.indexOf(e);
-            watchlist.splice(index, 1);
-        }
-    });
-    saveLocalStorage("watchlist", watchlist);
-    return (buttonHTML.innerHTML = `<button onclick="addFav('${id}','${id}Buttons')" class="btn btn-success" id="tt1345836button">Add</button>`);
-}
 
 function movieInfo(movieID) {
     element = document.getElementById(`${movieID}`);
@@ -190,7 +179,7 @@ function moreInfo(id, element) {
     axios
         .get(`https://api.themoviedb.org/3/movie/${encodeURIComponent(id)}?api_key=231ff08007c871881760666607644536&language=en-US`)
         .then(result => {
-            genre = `${result.data.genres[0].name} & ${result.data.genres[1].name}`;
+            genre = `<p>${result.data.genres[0].name}</p>`;
             movieHTML = []
             movieHTML.push(`<p>${genre}</p>`);
             id = result.data.imdb_id;
@@ -199,18 +188,18 @@ function moreInfo(id, element) {
         .then(movieHTML => {
             axios.get(`https://www.omdbapi.com/?apikey=3430a78&i=${encodeURIComponent(id)}&plot=full`)
                 .then(result => {
-                    ratings = result.data.Ratings.map(e => {
+                    ratings = result.data.Ratings.forEach(e => {
                         return movieHTML.push(`<p>${e.Source}: ${e.Value}</p>`);
                     })
+                    movieHTML.push(
+                        `<button class="btn-outline-secondary" onClick="recommend('${result.data.Title}')">Recommendations</button>`
+                    );
                 });
-            setTimeout(() => { targetDiv.innerHTML = movieHTML.join('') }, 2000)
+            setTimeout(() => { targetDiv.innerHTML = movieHTML.join('') }, 2000);
         })
-        // .then(() => {
-        //   movieHTML.push(
-        //     `<button class="btn-outline-secondary" onClick="recommend('${title}')">Recommendations</button>`
-        //   );
-        // });
-        // targetDiv.innerHTML = movieHTML.join("");
+        .then(title => {
+
+        });
 }
 
 function lessInfo(element) {
@@ -235,29 +224,14 @@ function recommend(title) {
                 )
                 .then(res => {
                     const recommendations = res.data.results.map(movie => {
-                        return movie.original_title;
+                        return movie;
                     });
-                    return recommendations;
+                    console.log(typeof recommendations)
+                    return recommendations
+
                 })
-                .then(recommendations => {
-                    return Promise.all(
-                        recommendations.map(movie => {
-                            return axios.get(
-                                `https://www.omdbapi.com/?apikey=3430a78&t=${encodeURIComponent(
-                  movie
-                )}`
-                            );
-                        })
-                    );
+                .then((recommendations) => {
+                    setTimeout(() => { return container.innerHTML = renderMovies(recommendations) }, 2000);
                 })
-                .then(recommendedMovies => {
-                    console.log(recommendedMovies);
-                    recommendedMovies = recommendedMovies.map(e => {
-                        return e.data;
-                    });
-                    document.getElementById("movieContainer").innerHTML = renderMovies(
-                        recommendedMovies
-                    );
-                });
         });
 }
