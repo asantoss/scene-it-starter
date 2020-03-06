@@ -21,7 +21,7 @@ document.addEventListener(`DOMContentLoaded`, () => {
 		let searchText = document.getElementById('searchText').value.toLowerCase();
 		encondedSearchString = encodeURIComponent(searchText);
 		axios
-			.get(`https://www.omdbapi.com/?apikey=98b66b75=${encondedSearchString}`)
+			.get(`https://www.omdbapi.com/?apikey=98b66b75&s=${encondedSearchString}`)
 			.then(result => {
 				document.getElementById(
 					'pages'
