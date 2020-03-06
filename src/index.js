@@ -4,6 +4,7 @@ let dropdown;
 let buttonHTML;
 let movieData;
 let moviePages;
+const apiKey = '98b66b75';
 const renderedPages = 5;
 let encondedSearchString;
 let watchlist = myStorage === null ? [] : JSON.parse(myStorage);
@@ -21,7 +22,9 @@ document.addEventListener(`DOMContentLoaded`, () => {
 		let searchText = document.getElementById('searchText').value.toLowerCase();
 		encondedSearchString = encodeURIComponent(searchText);
 		axios
-			.get(`https://www.omdbapi.com/?apikey=98b66b75&s=${encondedSearchString}`)
+			.get(
+				`https://www.omdbapi.com/?apikey=${apiKey}&s=${encondedSearchString}`
+			)
 			.then(result => {
 				document.getElementById(
 					'pages'
@@ -77,7 +80,7 @@ function fetchPage(number) {
 	number = Number.parseInt(number);
 	axios
 		.get(
-			`https://www.omdbapi.com/?apikey=3430a78&s=${encondedSearchString}&page=${number}`
+			`https://www.omdbapi.com/?apikey=${apiKey}s=${encondedSearchString}&page=${number}`
 		)
 		.then(result => {
 			return (movieData = result.data.Search);
@@ -177,7 +180,7 @@ function moreInfo(title, element) {
 	let targetDiv = document.getElementById(`${element}`);
 	axios
 		.get(
-			`https://www.omdbapi.com/?apikey=3430a78&t=${encodeURIComponent(
+			`https://www.omdbapi.com/?apikey=${apiKey}&t=${encodeURIComponent(
 				title
 			)}&plot=full`
 		)
@@ -229,7 +232,7 @@ function recommend(title) {
 					return Promise.all(
 						recommendations.map(movie => {
 							return axios.get(
-								`https://www.omdbapi.com/?apikey=3430a78&t=${encodeURIComponent(
+								`https://www.omdbapi.com/?apikey=${apiKey}&t=${encodeURIComponent(
 									movie
 								)}`
 							);
